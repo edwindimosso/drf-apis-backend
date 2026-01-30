@@ -14,10 +14,12 @@ class ProductSerializer(serializers.ModelSerializer):
     
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product_name = serializers.CharField(source="product.name")
+    product_price = serializers.DecimalField(max_digits=10, decimal_places=2, source= "product.price")
+
     class Meta:
         model= OrderItem
-        fields = ('product', 'quantity')
+        fields = ('product_name','product_price', 'quantity','subtotal')
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -31,3 +33,9 @@ class OrderSerializer(serializers.ModelSerializer):
     def total(self, obj):
         order_items = obj.items.all()
         return sum(order_item.subtotal for order_item in order_items)
+
+class ProductInfoSerializer(serializers.Serializer):
+    #getting all the products and counts also max price
+    products = ProductSerializer(many=True)
+    count = serializers.IntegerField()
+    max_price = serializers.FloatField()
